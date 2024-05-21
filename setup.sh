@@ -16,9 +16,12 @@ else
     echo "Docker already installed"
 fi
 
-# Install Docker Compose
-echo "Installing Docker Compose..."
-sudo pip3 install docker-compose
+# Install Docker Compose within a Python virtual environment
+echo "Installing Docker Compose within a virtual environment..."
+sudo apt-get install -y python3-venv
+python3 -m venv ~/docker-compose-venv
+source ~/docker-compose-venv/bin/activate
+pip install docker-compose
 
 # Create directories for Nextcloud and Nginx configuration
 echo "Creating directories and configuration files..."
@@ -38,8 +41,8 @@ services:
     volumes:
       - db:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=$(prompt "Enter MariaDB root password: ")
-      - MYSQL_PASSWORD=$(prompt "Enter Nextcloud DB password: ")
+      - MYSQL_ROOT_PASSWORD=\$(prompt "Enter MariaDB root password: ")
+      - MYSQL_PASSWORD=\$(prompt "Enter Nextcloud DB password: ")
       - MYSQL_DATABASE=nextcloud
       - MYSQL_USER=nextcloud
 
@@ -107,13 +110,13 @@ EOF
 
 # Function to prompt for user input
 prompt() {
-    read -p "$1" input
-    echo $input
+    read -p "\$1" input
+    echo \$input
 }
 
 # Start Docker containers
 echo "Starting Docker containers..."
 docker-compose up -d
 
-IP_ADDRESS=$(hostname -I | cut -d' ' -f1)
-echo "Setup completed successfully. Nextcloud should be accessible via $IP_ADDRESS"
+IP_ADDRESS=\$(hostname -I | cut -d' ' -f1)
+echo "Setup completed successfully. Nextcloud should be accessible via \$IP_ADDRESS"
