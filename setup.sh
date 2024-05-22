@@ -54,6 +54,14 @@ MYSQL_USER=$(prompt "Enter Nextcloud database user, default 'nextcloud': ")
 MYSQL_DATABASE=${MYSQL_DATABASE:-nextcloud}
 MYSQL_USER=${MYSQL_USER:-nextcloud}
 
+# Create SSL certificates for Nginx
+echo "Generating SSL certificates..."
+mkdir -p nginx/ssl
+openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout nginx/ssl/nextcloud.local.key \
+    -out nginx/ssl/nextcloud.local.crt \
+    -subj "/C=US/ST=State/L=City/O=Organization/CN=nextcloud.local"
+
 # Create Docker Compose file
 cat <<EOF > docker-compose.yml
 version: '3.7'
@@ -120,8 +128,12 @@ http {
     keepalive_timeout 65;
     server {
         listen 80;
+        listen 443 ssl;
         server_name _;
         root /var/www/html;
+
+        ssl_certificate /etc/nginx/ssl/nextcloud.local.crt;
+        ssl_certificate_key /etc/nginx/ssl/nextcloud.local.key;
 
         location / {
             proxy_pass http://app:80;
@@ -129,6 +141,7 @@ http {
             proxy_set_header X-Real-IP \$remote_addr;
             proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto \$scheme;
+            proxy_redirect off;
         }
     }
 }
