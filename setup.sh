@@ -90,6 +90,7 @@ services:
       - 443:443
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl:ro
       - nextcloud:/var/www/html:ro
     links:
       - app
