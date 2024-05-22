@@ -28,6 +28,22 @@ echo "Creating directories and configuration files..."
 mkdir -p nextcloud-docker
 cd nextcloud-docker
 
+# Function to prompt for user input
+prompt() {
+    read -p "$1" input
+    echo $input
+}
+
+# Collecting environment variables
+MYSQL_ROOT_PASSWORD=$(prompt "Enter MariaDB root password: ")
+MYSQL_PASSWORD=$(prompt "Enter Nextcloud DB password: ")
+MYSQL_DATABASE=$(prompt "Enter Nextcloud database name, default 'nextcloud': ")
+MYSQL_USER=$(prompt "Enter Nextcloud database user, default 'nextcloud': ")
+
+# Set default values if not provided
+MYSQL_DATABASE=${MYSQL_DATABASE:-nextcloud}
+MYSQL_USER=${MYSQL_USER:-nextcloud}
+
 # Create Docker Compose file
 cat <<EOF > docker-compose.yml
 version: '3.7'
@@ -41,11 +57,10 @@ services:
     volumes:
       - db:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=\$(prompt "Enter MariaDB root password: ")
-      - MYSQL_PASSWORD=\$(prompt "Enter Nextcloud DB password: ")
-      - MYSQL_DATABASE=nextcloud
-      - MYSQL_USER=nextcloud
-
+      - MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD
+      - MYSQL_PASSWORD=$MYSQL_PASSWORD
+      - MYSQL_DATABASE=$MYSQL_DATABASE
+      - MYSQL_USER=$MYSQL_USER
   app:
     image: nextcloud
     container_name: nextcloud-app
@@ -108,15 +123,9 @@ http {
 }
 EOF
 
-# Function to prompt for user input
-prompt() {
-    read -p "\$1" input
-    echo \$input
-}
-
 # Start Docker containers
 echo "Starting Docker containers..."
 docker-compose up -d
 
-IP_ADDRESS=\$(hostname -I | cut -d' ' -f1)
-echo "Setup completed successfully. Nextcloud should be accessible via \$IP_ADDRESS"
+IP_ADDRESS=$(hostname -I | cut -d' ' -f1)
+echo "Setup completed successfully. Nextcloud should be accessible via $IP_ADDRESS"
