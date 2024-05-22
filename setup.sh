@@ -16,12 +16,10 @@ else
     echo "Docker already installed"
 fi
 
-# Install Docker Compose within a Python virtual environment
-echo "Installing Docker Compose within a virtual environment..."
-sudo apt-get install -y python3-venv
-python3 -m venv ~/docker-compose-venv
-source ~/docker-compose-venv/bin/activate
-pip install docker-compose
+# Install Docker Compose as a standalone binary
+echo "Installing Docker Compose..."
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
 
 # Create directories for Nextcloud and Nginx configuration
 echo "Creating directories and configuration files..."
