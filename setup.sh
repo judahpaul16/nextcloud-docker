@@ -21,6 +21,18 @@ echo "Installing Docker Compose..."
 sudo curl -L "https://github.com/docker/compose/releases/download/v2.5.0/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 
+# Install Avahi daemon
+echo "Installing Avahi daemon..."
+sudo apt-get install -y avahi-daemon libnss-mdns
+sudo systemctl enable avahi-daemon
+sudo systemctl start avahi-daemon
+
+# Set the hostname permanently
+echo "Setting hostname to 'nextcloud'..."
+sudo hostnamectl set-hostname nextcloud
+# Update /etc/hosts for local resolution
+sudo sed -i 's/127.0.1.1 .*/127.0.1.1 nextcloud/g' /etc/hosts
+
 # Create directories for Nextcloud and Nginx configuration
 echo "Creating directories and configuration files..."
 mkdir -p nextcloud-docker
@@ -126,4 +138,4 @@ echo "Starting Docker containers..."
 docker-compose up -d
 
 IP_ADDRESS=$(hostname -I | cut -d' ' -f1)
-echo "Setup completed successfully. Nextcloud should be accessible via $IP_ADDRESS"
+echo "Setup completed successfully. Nextcloud should be accessible via $IP_ADDRESS and at http://nextcloud.local"
