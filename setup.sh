@@ -93,4 +93,8 @@ sudo certbot --nginx -d $DOMAIN --non-interactive --agree-tos --email $EMAIL --r
 echo "Starting Docker containers..."
 docker-compose up -d
 
+# Show status of Docker containers and Nginx
+docker-compose ps
+sudo systemctl status nginx
+
 echo "Setup completed successfully. NextCloud is now available at https://$DOMAIN."
